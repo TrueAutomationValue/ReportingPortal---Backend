@@ -110,8 +110,7 @@ public class NUnitV2Handler extends Handler {
     }
 
     @Override
-
-    public void characters(char ch[], int start, int length) {
+    public void characters(char[] ch, int start, int length) {
         String value = new String(ch,start,length);
         if (isTestFailed) {
             if (currentElement.equals("message")) {
