@@ -17,9 +17,9 @@ public class PHPCodeceptionHandler extends Handler {
 
     private TestRunDto testRun = new TestRunDto();
     private TestSuiteDto testSuite = new TestSuiteDto();
-    private List<TestResultDto> results = new ArrayList<TestResultDto>();
+    private List<TestResultDto> results = new ArrayList<>();
     private TestResultDto result = new TestResultDto();
-    private List<TestDto> tests = new ArrayList<TestDto>();
+    private List<TestDto> tests = new ArrayList<>();
     private TestDto test = new TestDto();
     private String currentElement = "";
     private Date currentTimeSlot;
@@ -33,45 +33,51 @@ public class PHPCodeceptionHandler extends Handler {
     }
 
     @Override
-    public void startDocument() throws SAXException {
+    public void startDocument(){
     }
 
     @Override
-    public void endDocument() throws SAXException {
+    public void endDocument(){
     }
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes){
         currentElement = qName;
-        if (qName.equals("testsuite")) {
-            calendar.setTime(testRun.getFinish_time());
-            Long suiteTime = Math.round(Double.parseDouble(attributes.getValue("time")));
-            calendar.add(Calendar.SECOND, -suiteTime.intValue());
-            testRun.setStart_time(calendar.getTime());
-            currentTimeSlot = testRun.getFinish_time();
-            testSuite.setName(attributes.getValue("name"));
-        } else if (qName.equals("testcase")) {
-            testcaseIsFound = true;
-            test.setName(attributes.getValue("feature"));
-            
-            result.setFinal_result_id(PASSED.getValue());
-            result.setFinish_date(currentTimeSlot);
-            calendar.setTime(currentTimeSlot);
-            Long testTime = Math.round(Double.parseDouble(attributes.getValue("time")));
-            calendar.add(Calendar.SECOND, -testTime.intValue());
-            currentTimeSlot = calendar.getTime();
-            result.setStart_date(currentTimeSlot);
-        } else if (qName.equals("failure") || qName.equals("error")) {
-            
-            result.setFinal_result_id(FAILED.getValue());
-        } else if(qName.equals("skipped")){
-            
-            result.setFinal_result_id(PENDING.getValue());
+        switch (qName) {
+            case "testsuite":
+                calendar.setTime(testRun.getFinish_time());
+                long suiteTime = Math.round(Double.parseDouble(attributes.getValue("time")));
+                calendar.add(Calendar.SECOND, -(int) suiteTime);
+                testRun.setStart_time(calendar.getTime());
+                currentTimeSlot = testRun.getFinish_time();
+                testSuite.setName(attributes.getValue("name"));
+                break;
+            case "testcase":
+                testcaseIsFound = true;
+                test.setName(attributes.getValue("feature"));
+
+                result.setFinal_result_id(PASSED.getValue());
+                result.setFinish_date(currentTimeSlot);
+                calendar.setTime(currentTimeSlot);
+                long testTime = Math.round(Double.parseDouble(attributes.getValue("time")));
+                calendar.add(Calendar.SECOND, -(int) testTime);
+                currentTimeSlot = calendar.getTime();
+                result.setStart_date(currentTimeSlot);
+                break;
+            case "failure":
+            case "error":
+
+                result.setFinal_result_id(FAILED.getValue());
+                break;
+            case "skipped":
+
+                result.setFinal_result_id(PENDING.getValue());
+                break;
         }
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName){
         currentElement = "";
         if (qName.equals("testcase") || (testcaseIsFound && qName.equals(""))) {
             test.setInternalId(test.getName());
@@ -87,7 +93,7 @@ public class PHPCodeceptionHandler extends Handler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length){
         String value = new String(ch,start,length);
         if(currentElement.equals("failure") || currentElement.equals("error")){
             String res = result.getFail_reason();

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static main.model.db.imports.enums.ResultStatus.*;
 
@@ -118,6 +119,7 @@ public class RobotHandler extends DefaultHandler {
 
     private Date convertToDate(String dateString) throws ParseException {
         DateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:ss.SSS");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.parse(dateString);
     }
 

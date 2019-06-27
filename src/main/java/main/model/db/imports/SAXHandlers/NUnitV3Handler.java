@@ -10,10 +10,7 @@ import org.xml.sax.SAXException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static main.model.db.imports.enums.ResultStatus.*;
 
@@ -172,6 +169,7 @@ public class NUnitV3Handler extends Handler {
 
     private Date convertToDate(String dateString) throws ParseException {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.parse(dateString);
     }
 
