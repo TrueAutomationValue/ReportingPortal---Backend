@@ -28,6 +28,8 @@ class HandlerFactory {
                 return new PHPCodeception(file);
             case "NUnit_v2":
                 return new NUnitV2(file);
+            case "NUnit_v3":
+                return new NUnitV3(file);
             default:
                 throw new RPException(String.format("Import Type '%s' is not implemented", type));
         }

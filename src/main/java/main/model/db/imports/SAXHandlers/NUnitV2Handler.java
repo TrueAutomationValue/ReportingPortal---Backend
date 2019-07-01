@@ -10,10 +10,7 @@ import org.xml.sax.SAXException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static main.model.db.imports.enums.ResultStatus.*;
 
@@ -110,8 +107,7 @@ public class NUnitV2Handler extends Handler {
     }
 
     @Override
-
-    public void characters(char ch[], int start, int length) {
+    public void characters(char[] ch, int start, int length) {
         String value = new String(ch,start,length);
         if (isTestFailed) {
             if (currentElement.equals("message")) {
@@ -132,6 +128,7 @@ public class NUnitV2Handler extends Handler {
         String date;
         date = String.format("%1$s %2$s", dateString, timeString);
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.parse(date);
     }
 

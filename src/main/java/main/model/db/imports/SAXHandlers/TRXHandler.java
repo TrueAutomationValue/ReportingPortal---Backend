@@ -9,10 +9,7 @@ import org.xml.sax.Attributes;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static main.model.db.imports.enums.ResultStatus.*;
 
@@ -154,6 +151,7 @@ public class TRXHandler extends DefaultHandler {
         String[] parts = dateString.split("\\.");
         String t = parts[0].replace('T', ' ');
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.parse(t);
     }
 
