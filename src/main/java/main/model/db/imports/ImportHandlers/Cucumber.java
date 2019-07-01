@@ -9,10 +9,8 @@ import main.model.dto.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static main.model.db.imports.enums.ResultStatus.*;
 
@@ -22,7 +20,6 @@ public class Cucumber extends Handler{
         private List<TestDto> tests = new ArrayList<>();
         private List<TestResultDto> results = new ArrayList<>();
         private DateUtils dateUtils = new DateUtils();
-
         private FeatureDto currentFeature;
         private TestResultDto currentResult;
         private Integer testTime = 0;

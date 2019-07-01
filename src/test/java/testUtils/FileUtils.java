@@ -8,9 +8,7 @@ import java.io.File;
 public class FileUtils {
 
     public static String getResourceFileAsString(String fileName) {
-        ClassLoader classLoader = FileHelper.class.getClassLoader();
-
-        File file = new File(classLoader.getResource(fileName).getFile());
+        File file = getResourceFile(fileName);
         try {
             String fp = file.getPath();
             fp = fp.replaceAll("%20", " ");
@@ -20,5 +18,10 @@ public class FileUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static File getResourceFile(String fileName){
+        ClassLoader classLoader = FileHelper.class.getClassLoader();
+        return  new File(classLoader.getResource(fileName).getFile());
     }
 }

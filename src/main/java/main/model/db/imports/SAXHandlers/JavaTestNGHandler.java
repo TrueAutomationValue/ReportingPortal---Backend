@@ -33,20 +33,20 @@ public class JavaTestNGHandler extends DefaultHandler {
     }
 
     @Override
-    public void startDocument() throws SAXException {
+    public void startDocument(){
     }
 
     @Override
-    public void endDocument() throws SAXException {
+    public void endDocument() {
     }
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes){
         currentElement = qName;
         if(qName.equals("testsuite")){
             calendar.setTime(testRun.getFinish_time());
-            Long longTime = Math.round(Double.parseDouble(attributes.getValue("time").replaceAll(",","").split("\\.")[0]));
-            calendar.add(Calendar.SECOND, -longTime.intValue());
+            long longTime = Math.round(Double.parseDouble(attributes.getValue("time").replaceAll(",","").split("\\.")[0]));
+            calendar.add(Calendar.SECOND, -(int) longTime);
             testRun.setStart_time(calendar.getTime());
             currentTimeSlot = testRun.getFinish_time();
         } else if(qName.equals("property") && attributes.getValue("name").equals("suite")){
@@ -76,7 +76,7 @@ public class JavaTestNGHandler extends DefaultHandler {
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName){
         currentElement = "";
         if (qName.equals("testcase")) {
             test.setInternalId(test.getName());
@@ -91,7 +91,7 @@ public class JavaTestNGHandler extends DefaultHandler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length){
         String value = new String(ch,start,length);
         if(currentElement.equals("failure")){
             String res = result.getFail_reason();
