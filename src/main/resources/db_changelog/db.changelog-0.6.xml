@@ -159,4 +159,26 @@
             INSERT INTO `customer` (`name`, `coordinator_id`, `accounting`) VALUES ('-', '2', '0');
         </sql>
     </changeSet>
+    <changeSet id="add update results after resolution removed" author="v.kostyukevich">
+        <sql endDelimiter="#">
+            DROP procedure IF EXISTS `REMOVE_RESULT_RESOLUTION`;
+
+            #
+
+            CREATE PROCEDURE `REMOVE_RESULT_RESOLUTION` (
+            IN request_id VARCHAR(11)
+            )
+            BEGIN
+            DELETE FROM result_resolution
+            WHERE id=request_id;
+
+            UPDATE test_results SET test_resolution_id = 1 Where id > 5 AND test_resolution_id IS NULL;
+            END
+
+            #
+        </sql>
+    </changeSet>
+
+
+
 </databaseChangeLog>
