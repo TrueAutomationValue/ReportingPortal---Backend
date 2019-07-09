@@ -179,6 +179,66 @@
         </sql>
     </changeSet>
 
+    <changeSet id="add FOREIGN key to test results" author="v.kostyukevich">
+        <sql endDelimiter="#">
+            CREATE TEMPORARY TABLE removed_resolutions SELECT tr.id FROM test_results AS tr
+            LEFT JOIN result_resolution AS rr
+            ON tr.test_resolution_id = rr.id WHERE rr.id IS NULL;
+
+            #
+
+            SET SQL_SAFE_UPDATES = 0;
+
+            #
+
+            UPDATE test_results SET test_resolution_id = NULL
+            WHERE id IN (Select * from removed_resolutions);
+
+            #
+
+            SET SQL_SAFE_UPDATES = 1;
+
+            #
+
+            ALTER TABLE `test_results`
+            ADD INDEX `test_result_test_resolution_idx` (`test_resolution_id` ASC);
+
+            #
+
+            ALTER TABLE `test_results`
+            ADD CONSTRAINT `test_result_test_resolution`
+            FOREIGN KEY (`test_resolution_id`)
+            REFERENCES `result_resolution` (`id`)
+            ON DELETE SET NULL
+            ON UPDATE CASCADE;
+
+            #
+
+            DROP TEMPORARY TABLE removed_resolutions;
+        </sql>
+    </changeSet>
+    <changeSet id="add update results after resolution removed fix for id" author="v.kostyukevich">
+        <sql endDelimiter="#">
+            DROP procedure IF EXISTS `REMOVE_RESULT_RESOLUTION`;
+
+            #
+
+            CREATE PROCEDURE `REMOVE_RESULT_RESOLUTION` (
+            IN request_id VARCHAR(11)
+            )
+            BEGIN
+            DELETE FROM result_resolution
+            WHERE id=request_id;
+
+            UPDATE test_results SET test_resolution_id = 1 Where test_resolution_id IS NULL;
+            END
+
+            #
+        </sql>
+    </changeSet>
+
+
+
 
 
 </databaseChangeLog>
