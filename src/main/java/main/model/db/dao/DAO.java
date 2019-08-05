@@ -17,6 +17,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class DAO<T extends BaseDto> {
     private Connection connection;
@@ -26,11 +28,22 @@ public abstract class DAO<T extends BaseDto> {
     protected String insert;
     protected String remove;
 
+
+    /**
+     * Class that allows you to work with DB
+     * @param type Dto type
+     */
     protected DAO(Class<T> type){
         this.type = type;
         dtoMapper = new DtoMapper<>(type);
     }
 
+
+    /**
+     * Delete multiple entities
+     * @param entities entities to remove
+     * @return true if every entity was removed
+     */
     public boolean deleteMultiply(List<T> entities){
         boolean success = true;
         for (T entity: entities){
@@ -44,6 +57,10 @@ public abstract class DAO<T extends BaseDto> {
         return success;
     }
 
+    /**
+     * Get All entities in DB
+     * @return List of entities
+     */
     public List<T> getAll() throws RPException {
         try {
             return searchAll(type.newInstance());
@@ -52,20 +69,43 @@ public abstract class DAO<T extends BaseDto> {
         }
     }
 
+    /**
+     * Get All entities in DB that have same fields as template object
+     * @param entity search template (blank fields will be ignored)
+     * @return List of entities
+     */
     public List<T> searchAll(T entity) throws RPException {
         List<Pair<String, String>> parameters = entity.getSearchParameters();
-
         return dtoMapper.mapObjects(CallStoredProcedure(select, parameters).toString());
     }
 
+    /**
+     * Get single entity by id
+     * @param entity entity id
+     * @return entity
+     */
     public T getEntityById(T entity) throws RPException {
         return searchAll(entity).get(0);
     }
 
+
+    /**
+     * Update entity
+     * @param entity with fields that should be updated (id is required)
+     * @return Updated entity
+     */
     public T update(T entity) throws RPException {
-        return create(entity);
+        if(entity.getIDParameters().size() > 0){
+            return create(entity);
+        }
+        throw new RPException("Cannot update entity without id!");
     }
 
+    /**
+     * Delete entity
+     * @param entity with id fields
+     * @return true if was able to remove entity
+     */
     public boolean delete(T entity) throws RPException {
         List<Pair<String, String>> parameters = entity.getIDParameters();
 
@@ -73,12 +113,22 @@ public abstract class DAO<T extends BaseDto> {
         return true;
     }
 
+    /**
+     * Create Entity
+     * @param entity entity to create
+     * @return created entity
+     */
     public T create(T entity) throws RPException {
         List<Pair<String, String>> parameters = entity.getParameters();
 
         return dtoMapper.mapObjects(CallStoredProcedure(insert, parameters).toString()).get(0);
     }
 
+    /**
+     * Create multiple entities
+     * @param entities entities to create
+     * @return true if was able to create all entities
+     */
     public boolean createMultiply(List<T> entities) throws RPException {
         for (T entity: entities ) {
             create(entity);
@@ -86,6 +136,11 @@ public abstract class DAO<T extends BaseDto> {
         return true;
     }
 
+    /**
+     * Update multiple entities
+     * @param entities entities to update
+     * @return true if was able to update all entities
+     */
     public boolean updateMultiply(List<T> entities) throws RPException {
         for (T entity: entities ) {
             update(entity);

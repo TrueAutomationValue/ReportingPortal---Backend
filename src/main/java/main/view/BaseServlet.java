@@ -2,6 +2,7 @@ package main.view;
 
 import main.Session;
 import main.exceptions.RPException;
+import main.exceptions.RPQueryParameterException;
 import main.model.dto.DtoMapperGeneral;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -116,6 +117,7 @@ public class BaseServlet extends HttpServlet{
         resp.addHeader("Access-Control-Allow-Headers", "ErrorMessage");
         resp.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
         resp.addHeader("Access-Control-Allow-Headers", "Content-Disposition");
+        resp.setStatus(204);
     }
 
     private void setAuthorizationProblem(@NotNull HttpServletResponse resp, @NotNull Exception e){
@@ -213,6 +215,9 @@ public class BaseServlet extends HttpServlet{
                 resp.setStatus(500);
                 resp.addHeader("ErrorMessage", e.getMessage());
                 return;
+            case "RPQueryParameterException":
+                resp.setStatus(422);
+                resp.addHeader("ErrorMessage", e.getMessage());
             default:
                 setUnknownIssue(resp);
         }
@@ -226,5 +231,12 @@ public class BaseServlet extends HttpServlet{
     private void setUnknownIssue(@NotNull HttpServletResponse resp) {
         resp.setStatus(500);
         resp.addHeader("ErrorMessage", "Unknown Issue.");
+    }
+
+    public void assertRequiredField(HttpServletRequest request, String fieldName) throws RPException {
+        String fieldValue = getStringQueryParameter(request, fieldName);
+        if (fieldValue == null) {
+            throw new RPQueryParameterException(fieldName);
+        }
     }
 }

@@ -11,10 +11,13 @@ import main.model.dto.LdapDto;
 import main.model.dto.UserDto;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.poi.util.NotImplemented;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
-public class SettingsController extends BaseController {
+public class SettingsController extends BaseController<AppSettingsDto> {
     private AppSettingsDao appSettingsDao;
     private EmailSettingsDao emailSettingsDao;
     private LdapDao ldapDao;
@@ -64,12 +67,25 @@ public class SettingsController extends BaseController {
             throw new RPPermissionsException("Account is not allowed to update LDAP Settings", baseUser);
         }
     }
+
+
+    @Override
     public AppSettingsDto create(AppSettingsDto template) throws RPException {
         if(baseUser.isAdmin()){
             return appSettingsDao.create(template);
         }else{
             throw new RPPermissionsException("Account is not allowed to update Application Settings", baseUser);
         }
+    }
+
+    @Override @NotImplemented
+    public List<AppSettingsDto> get(AppSettingsDto entity) throws RPException {
+        throw new NotImplementedException();
+    }
+
+    @Override @NotImplemented
+    public boolean delete(AppSettingsDto entity) throws RPException {
+        throw new NotImplementedException();
     }
 
     public String getAdminSecret() throws RPException {

@@ -16,7 +16,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomerController extends BaseController {
+public class CustomerController extends BaseController<CustomerDto> {
     private CustomerDao customerDao;
     private CustomerAttachmentsDao customerAttachmentsDao;
     private CustomerCommentsDao customerCommentsDao;
@@ -34,6 +34,11 @@ public class CustomerController extends BaseController {
         userDao = new UserDao();
     }
 
+    @Override
+    public List<CustomerDto> get(CustomerDto template) throws RPException {
+        return get(template, false);
+    }
+
     public List<CustomerDto> get(CustomerDto template, boolean withChildren) throws RPException {
         List<CustomerDto> customers = customerDao.searchAll(template);
         if (withChildren) {
@@ -42,6 +47,7 @@ public class CustomerController extends BaseController {
             return customers;
         }
     }
+
     public List<CustomerMemberDto> get(CustomerMemberDto template) throws RPException {
         if(baseUser.isCoordinator()){
             return customerMembersDao.searchAll(template);
@@ -49,6 +55,7 @@ public class CustomerController extends BaseController {
             throw new RPPermissionsException("Account is not allowed to view Customer Members", baseUser);
         }
     }
+
     public List<CustomerCommentDto> get(CustomerCommentDto template) throws RPException {
         if(baseUser.isCoordinator()){
             return completeComments(customerCommentsDao.searchAll(template));
@@ -56,6 +63,7 @@ public class CustomerController extends BaseController {
             throw new RPPermissionsException("Account is not allowed to view Customer Comments", baseUser);
         }
     }
+
     public List<CustomerAttachmentDto> get(CustomerAttachmentDto template) throws RPException {
         if(baseUser.isCoordinator()){
             return customerAttachmentsDao.searchAll(template);
@@ -64,6 +72,7 @@ public class CustomerController extends BaseController {
         }
     }
 
+    @Override
     public CustomerDto create(CustomerDto template) throws RPException {
         if(baseUser.isCoordinator()){
             if(template.getId() != null && template.getAccounting() == 0){
@@ -102,6 +111,7 @@ public class CustomerController extends BaseController {
         throw new NotImplementedException("Not implemented Update Members function");
     }
 
+    @Override
     public boolean delete(CustomerDto template) throws RPException {
         if(baseUser.isCoordinator()){
             return customerDao.delete(template);

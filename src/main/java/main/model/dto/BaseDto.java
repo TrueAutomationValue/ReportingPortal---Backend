@@ -41,8 +41,11 @@ public abstract class BaseDto {
                 DataBaseSearchable searchAnnotation = field.getAnnotation(DataBaseSearchable.class);
                 if(nameAnnotation != null && searchAnnotation != null){
                     field.setAccessible(true);
-                    Object value = field.get(this);
-                    Pair<String, String> pair = new Pair<>(nameAnnotation.name(), getStringValue(value));
+                    String value = getStringValue(field.get(this));
+                    if(nameAnnotation.name().equals("request_limit") && value.equals("0")){
+                        value = "100000";
+                    }
+                    Pair<String, String> pair = new Pair<>(nameAnnotation.name(), value);
                     list.add(pair);
                 }
             } catch (IllegalAccessException e) {

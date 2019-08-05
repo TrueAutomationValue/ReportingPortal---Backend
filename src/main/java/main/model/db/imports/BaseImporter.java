@@ -1,6 +1,7 @@
 package main.model.db.imports;
 
-import main.controllers.ProjectController;
+import main.controllers.ControllerFactory;
+import main.controllers.Project.ProjectController;
 import main.exceptions.RPException;
 import main.model.db.dao.project.ImportDao;
 import main.model.db.dao.project.TestDao;
@@ -15,14 +16,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class BaseImporter {
-    private ProjectController projectController;
+    private ControllerFactory controllerFactory;
     private String pattern;
     protected File file;
 
-    BaseImporter(int projectId, String pattern, UserDto user) throws ParserConfigurationException, SAXException {
+    BaseImporter(int projectId, String pattern, UserDto user){
         this.projectId = projectId;
         this.pattern = pattern;
-        projectController = new ProjectController(user);
+        controllerFactory = new ControllerFactory(user);
     }
 
     private List<TestResultDto> existingResults = new ArrayList<>();
@@ -82,7 +83,7 @@ class BaseImporter {
 
     private void createTestRun() throws RPException{
         if(testRun.getId() != null){
-            this.testRun = projectController.get(testRun, false, 1).get(0);
+            this.testRun = controllerFactory.getHandler(testRun).get(testRun, false, 1).get(0);
         }
         else{
             createTestRun((testRun.getBuild_name() != null && !testRun.getBuild_name().equals(""))
@@ -96,7 +97,7 @@ class BaseImporter {
         setTestRunStartDate();
         setTestRunFinishDate();
         testRun.setTest_suite_id(testSuite.getId());
-        testRun.setId(projectController.create(testRun).getId());
+        testRun.setId(controllerFactory.getHandler(testRun).create(testRun).getId());
     }
 
     private void setTestRunStartDate(){
@@ -117,12 +118,12 @@ class BaseImporter {
 
     private void createTestSuite() throws RPException {
         testSuite.setProject_id(projectId);
-        List<TestSuiteDto> testSuites = projectController.get(testSuite, false);
+        List<TestSuiteDto> testSuites = controllerFactory.getHandler(testSuite).get(testSuite, false);
 
         if (testSuites.size() > 0) {
             testSuite = testSuites.get(0);
         } else {
-            testSuite.setId(projectController.create(testSuite).getId());
+            testSuite.setId(controllerFactory.getHandler(testSuite).create(testSuite).getId());
         }
     }
 
@@ -142,7 +143,7 @@ class BaseImporter {
                 allTests.add(test);
             }
 
-            test.setId(projectController.create(test, false).getId());
+            test.setId(controllerFactory.getHandler(test).create(test, false).getId());
             linkTestToSuite(test);
 
             completedTests.add(test);
@@ -161,7 +162,7 @@ class BaseImporter {
         Test2SuiteDto test2SuiteDto = new Test2SuiteDto();
         test2SuiteDto.setTest_id(test.getId());
         test2SuiteDto.setSuite_id(testSuite.getId());
-        projectController.create(test2SuiteDto);
+        controllerFactory.getHandler(test2SuiteDto).create(test2SuiteDto);
     }
 
     private void createResult(TestResultDto result, boolean update) throws  RPException {
@@ -185,7 +186,7 @@ class BaseImporter {
             if(result.getFail_reason() != null && !result.getFail_reason().equals("")){
                 updateResultWithSimilarError(result);
             }
-            projectController.create(result);
+            controllerFactory.getHandler(result).create(result);
         } catch (RPException e){
             throw e;
         } catch (Exception e){

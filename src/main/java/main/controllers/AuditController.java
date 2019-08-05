@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AuditController extends BaseController {
+public class AuditController extends BaseController<AuditDto> {
     private AuditDao auditDao;
     private AuditStatusDao auditStatusDao;
     private ServiceDao serviceDao;
@@ -43,6 +43,7 @@ public class AuditController extends BaseController {
         userDao = new UserDao();
     }
 
+    @Override
     public List<AuditDto> get(AuditDto searchTemplate) throws RPException {
         List<AuditDto> audits = auditDao.searchAll(searchTemplate);
         Integer projectId;
@@ -92,6 +93,7 @@ public class AuditController extends BaseController {
         }
     }
 
+    @Override
     public AuditDto create(AuditDto createTemplate) throws RPException {
         if(baseUser.isAuditAdmin() || isAssignedAuditor(createTemplate.getId())){
             AuditDto createdAudit = auditDao.create(createTemplate);
@@ -151,6 +153,7 @@ public class AuditController extends BaseController {
         }
     }
 
+    @Override
     public boolean delete(AuditDto template) throws RPException {
         if(baseUser.isAuditAdmin()){
             return auditDao.delete(template);
